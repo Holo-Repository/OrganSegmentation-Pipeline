@@ -1,220 +1,226 @@
-<p align="center">
-  <img width="300" alt="HoloRepository logo" src="https://user-images.githubusercontent.com/11090412/62009421-f491a400-b156-11e9-98ca-408dc2fab7e8.png">
-  <p align="center">
-    A system for transforming medical imaging studies such as CT or MRI scans into 3-dimensional holograms, storing data on a cloud-based platform and making it available for other systems.
-  </p>
-  
-  <p align="center">
-    Find out more on the <a href="https://fanbomeng97.github.io/HoloRepository-Website/#/">project website</a>.
-  </p>
+# HoloPipelines <a href="https://dev.azure.com/MSGOSHHOLO/HoloRepository/_build/latest?definitionId=1&branchName=dev"><img src="https://dev.azure.com/MSGOSHHOLO/HoloRepository/_apis/build/status/HoloRepository-Core?branchName=dev&jobName=HoloPipelines%20-%20Core" alt="HoloPipelines core build status" align="right" /></a>
 
-  <p align="center">
-    <a href="https://dev.azure.com/MSGOSHHOLO/HoloRepository/_build/latest?definitionId=1&branchName=dev">
-      <img src="https://img.shields.io/azure-devops/build/MSGOSHHOLO/84bcb432-f279-452c-a53c-37df0f28baf0/1" alt="Build status"/>
-    </a>
-    <a href="https://www.codefactor.io/repository/github/nbckr/holorepository-core">
-      <img alt="CodeFactor Grade" src="https://img.shields.io/codefactor/grade/github/nbckr/HoloRepository-Core" />
-    </a>
-    <a href="https://github.com/nbckr/HoloRepository-Core/issues">
-      <img alt="GitHub issues" src="https://img.shields.io/github/issues/nbckr/HoloRepository-Core" />
-    </a>
-    <a href="https://github.com/nbckr/HoloRepository-Core/pulls">
-      <img alt="GitHub pull requests" src="https://img.shields.io/github/issues-pr/nbckr/HoloRepository-Core" />
-    </a>
-    <a href="https://github.com/nbckr/HoloRepository-Core/blob/master/LICENSE">
-      <img alt="GitHub" src="https://img.shields.io/github/license/nbckr/HoloRepository-Core" />
-    </a>
-  </p>
-</p>
+A cloud-based service that performs the automatic generation of 3D models from 2D image
+stacks. Pre-trained neural network models are deployed and accessed with this component
+alongside traditional techniques like Hounsfield value thresholding.
 
-## Table of contents
+## Description
 
-- [Background](#background)
-- [System overview](#system-overview)
-  - [HoloRepositoryUI](#holorepositoryui)
-  - [HoloPipelines](#holopipelines)
-  - [HoloStorage](#holostorage)
-  - [HoloStorageAccessor](#holostorageaccessor)
-  - [HoloStorageConnector](#holostorageconnector)
-  - [HoloRepository Demo application](#holorepository-demo-application)
-  - [Other tools](#other-tools)
-  - [Integration with other projects](#integration-with-other-projects)
-- [A word of warning](#a-word-of-warning)
-- [Code organisation](#code-organisation)
-- [Development](#development)
-  - [Get started](#get-started)
-  - [Set up the environment](#set-up-the-environment)
-  - [System integration](#system-integration)
-- [Contributing](#contributing)
-- [Acknowledgements](#acknowledgements)
-- [License](#license)
+<img
+src="https://user-images.githubusercontent.com/11090412/62010807-49d5b180-b167-11e9-9ff5-cd221e94b265.png"
+alt="screenshot" height="350" align="left" /> The HoloPipelines are responsible for the
+generation of 3D holograms to eventually be displayed in the HoloLens, sourced from
+DICOM imaging studies. The cloud-hosted service provides a consistent pipeline interface
+to consume DICOM and yield glTF2 files (plus associated patient data). By implementing a
+Docker-based template, arbitrary pre-trained neural network (NN) models can be plugged
+into the HoloPipelines service seamlessly. This allows to add new workflows in the
+future and implement each workflow independently.
 
-## Background
+A typical pipeline will process the data fully automatic by utilising a NN model which
+has been trained to perform a specific task, such as segmenting the bones from a CT
+scan. Several Docker-based interfaces for distributing pre-trained models have been
+suggested, for instance the ModelHub.ai scheme, Niftinet or Microsoft Azure ML. We will
+iteratively add adapters for these interfaces, so that the HoloPipelines can integrate
+existing models.
 
-Recent technical advancements in the realm of augmented reality (AR) and the availability of consumer head-mounted display (HMD) devices such as the Microsoft HoloLens have opened a wealth of opportunities for healthcare applications, particularly in medical imaging. Several approaches have been proposed to transform imaging studies, such as CT or MRI scans, into three-dimensional models which can be inspected and manipulated in an AR experience [1–4]. Generally, all studies agree that the technology is very promising and may even revolutionise the practice of medicine [5]. However, virtually every existing workflow relies on significant manual guidance to conduct steps like segmentation or conversion to polygonal models.
+As each pipeline is independent, semi-automated or manual pipelines (which may even
+include their own front-ends or manual processing steps) could be added later.
 
-Neural networks can help automate many tedious tasks and are increasingly used in medical imaging. Architectures such as the 3D U-Net [6] generate models which autonomously create segmentation maps, even with relatively little training data. However, translating these advancements from theory to clinical practice has unique challenges: The source code may not be available, documentation may be missing or require too much technical knowledge. Furthermore, different operating systems, software packages and dependencies obstruct successful usage [7].
+Upon receiving a DICOM image series, a job will be started and passed through the
+different stages of a pipeline. The status of each job can be queried through a distinct
+API. When finished, the result will be handed on to the HoloStorage Accessor.
 
-With the HoloRepository project, we intend to build the technical base for a seamless workflow that allows practitioners to generate 3D models from imaging studies and access them in an AR setting with as little manual involvement as possible. Pre-trained neural networks can be packaged into shareable Docker containers and accessed with a unified interface. Additionally, the Fast Healthcare Interoperability Resources (FHIR) standard, which is rapidly being adapted and also has a significant impact on the field of radiology [8], will connect the 3D models with existing patient health records.
+## Technologies
 
-<details>
-  <summary><b>Show references</b></summary>
+Majority of the code is written in Python 3.7.3
 
->  * [1]	Smith CM. Medical Imaging in Mixed Reality: A holographics software pipeline. University College London, 2018.
->  * [2]	Pratt P, Ives M, Lawton G, Simmons J, Radev N, Spyropoulou L, et al. Through the HoloLensTM looking glass: augmented reality for extremity reconstruction surgery using 3D vascular models with perforating vessels. Eur Radiol Exp 2018;2:2. doi:10.1186/s41747-017-0033-2.
->  * [3]	Affolter R, Eggert S, Sieberth T, Thali M, Ebert LC. Applying augmented reality during a forensic autopsy—Microsoft HoloLens as a DICOM viewer. Journal of Forensic Radiology and Imaging 2019;16:5–8. doi:10.1016/j.jofri.2018.11.003.
->  * [4]	Page M. Visualization of Complex Medical Data Using Next-Generation Holographic Techniques 2017.
->  * [5]	Beydoun A, Gupta V, Siegel E. DICOM to 3D Holograms: Use Case for Augmented Reality in Diagnostic and Interventional Radiology. SIIM Scientific Session Posters and Demonstrations 2017:4.
->  * [6]	Çiçek Ö, Abdulkadir A, Lienkamp SS, Brox T, Ronneberger O. 3D U-Net: Learning Dense Volumetric Segmentation from Sparse Annotation. ArXiv:160606650 [Cs] 2016.
->  * [7]	Beers A, Brown J, Chang K, Hoebel K, Gerstner E, Rosen B, et al. DeepNeuro: an open-source deep learning toolbox for neuroimaging. ArXiv:180804589 [Cs] 2018.
->  * [8]	Kamel PI, Nagy PG. Patient-Centered Radiology with FHIR: an Introduction to the Use of FHIR to Offer Radiology a Clinically Integrated Platform. J Digit Imaging 2018;31:327–33. doi:10.1007/s10278-018-0087-6.
-</details>
+- Web application framework to handle requests [Flask](https://github.com/pallets/flask)
+- [Node.js](https://nodejs.org/en/) to utilise the package available for glTF conversion
+  and transformation
+- An open source convolutional neural networks platform [NiftyNet](https://niftynet.io)
+- Pipelines containerized using [Docker](https://www.docker.com)
+- Testing is done through [Pytest](https://github.com/pytest-dev/pytest)
 
-## System overview
+## Architecture
 
-![HoloRepository system overview](https://user-images.githubusercontent.com/11090412/63985867-7748ae80-cac9-11e9-82e1-74de31f486d7.png)
+The HoloPipelines themselves are a cloud-based application developed with Python. The
+code implements a Pipes-and-Filters pattern and is kept modular. Different modules can
+be pieced together to reflect different workflows, and thereby provide different
+pipelines.
 
-The HoloRepository ecosystem consists of multiple sub-systems and remains open to future extensions. Currently, core components are:
+The modules that form a pipeline can perform different tasks:
 
-### [HoloRepositoryUI](https://github.com/nbckr/HoloRepository-Core/tree/master/HoloRepositoryUI)<a href="https://dev.azure.com/MSGOSHHOLO/HoloRepository/_build/latest?definitionId=1&branchName=dev"><img src="https://dev.azure.com/MSGOSHHOLO/HoloRepository/_apis/build/status/HoloRepository-Core?branchName=dev&jobName=HoloRepositoryUI%20-%20Client" alt="Client build status" align="right" /></a><a href="https://dev.azure.com/MSGOSHHOLO/HoloRepository/_build/latest?definitionId=1&branchName=dev"><img src="https://dev.azure.com/MSGOSHHOLO/HoloRepository/_apis/build/status/HoloRepository-Core?branchName=dev&jobName=HoloRepositoryUI%20-%20Server" alt="Server build status" align="right" /></a>
+- The first module in the chain is responsible for listening to incoming `POST` requests
+  and then actively pulling the input data from the PACS.
+- Intermediate modules perform various pre- or post-processing tasks such as rescaling,
+  cropping, or filtering.
+- Special adapter modules are used to call the pre-trained NN models, which are being
+  deployed as separate containers and accessed via HTTP calls.
+- The last module is responsible for sending the result off to the HoloStorage Accessor.
 
-A web-based application that allows practitioners to browse their patients and manage the generation of 3D models sourced from imaging studies like CT or MRI scans. The client-side application is accompanied by an API server that is responsible for communicating with the other components.
+## Job-specific working areas
 
-### [HoloPipelines](https://github.com/nbckr/HoloRepository-Core/tree/master/HoloPipelines)<a href="https://dev.azure.com/MSGOSHHOLO/HoloRepository/_build/latest?definitionId=1&branchName=dev"><img src="https://dev.azure.com/MSGOSHHOLO/HoloRepository/_apis/build/status/HoloRepository-Core?branchName=dev&jobName=HoloPipelines%20-%20Core" alt="HoloPipelines core build status" align="right" /></a><a href="https://dev.azure.com/MSGOSHHOLO/HoloRepository/_build/latest?definitionId=1&branchName=dev"><img src="https://dev.azure.com/MSGOSHHOLO/HoloRepository/_apis/build/status/HoloRepository-Core?branchName=dev&jobName=HoloPipelines%20-%20Models" alt="HoloPipelines models build status" align="right" /></a>
+When jobs are triggered, they will automatically create and maintain their local working
+ area in `<app-root-dir>/__jobs__/<job-id>`.
+ 
+This directory contains subdirectories for `input`, `output` and `temp` data.
+Furthermore, a `job.log` file contains the job-specific logs and a `job.state` file
+contains the current state. The automatic garbage collection usually deletes all binary
+files, but keeps logs around by default. For production deployment, this should be
+changed (or the `__finished_jobs__` directory should be emptied regularly). If you want
+to keep all files or change other settings, refer to the
+[configuration](#configuration).
 
-A cloud-based service that performs the automatic generation of 3D models from 2D image stacks. Pre-trained neural network models are deployed and accessed with this component alongside traditional techniques like Hounsfield value thresholding.
+## Pre-trained NN models
 
-### HoloStorage
+We are continually wrapping existing pre-trained models with a lightweight Flask API and
+a `Dockerfile`. These models can be found in the `models/` directory.
 
-A cloud-based storage for medical 3D models and associated metadata. Entirely hosted on Microsoft Azure, a FHIR server stores the structured medical data and a Blob Storage server provides for the binary holographic data.
+If you want to train your own model or integrate an existing model that is not
+officially supported yet, you can easily integrate it yourself. You will need to
+implement some kind of server to comply with the specified API endpoints (documented in
+`models/README.md`) and a `Dockerfile`. You can take a look at the existing models for
+reference.
 
-### [HoloStorageAccessor](https://github.com/nbckr/HoloRepository-Core/tree/master/HoloStorageAccessor)<a href="https://dev.azure.com/MSGOSHHOLO/HoloRepository/_build/latest?definitionId=1&branchName=dev"><img src="https://dev.azure.com/MSGOSHHOLO/HoloRepository/_apis/build/status/HoloRepository-Core?branchName=dev&jobName=HoloStorageAccessor" alt="HoloStorageAccessor build status" align="right" /></a>
+## How to add new pipelines
 
-An enhanced facade, offering a consistent interface to the HoloStorage and translating the public REST API to internal FHIR queries. To facilitate development of 3rd party components, the interface comes with an interactive OpenAPI documentation.
+Adding a new pipeline is fairly easy; however, it currently does include some manual
+steps. The required steps vary depending on the specific use case, and on the type of
+pipeline. Currently, we have three types of pipelines, that differ in the way they
+perform automatic segmentation:
+* Algorithmic segmentation using low-level libraries (e.g. `bone_segmentation` pipeline)
+* Existing implementations of algorithmic segmentation (e.g. `lung_segmentation`
+  pipeline)
+* Automatic segmentation using external neural networks (e.g.
+  `abdominal_organs_segmentation` pipeline)
 
-### [HoloStorageConnector](https://github.com/nbckr/HoloRepository-HoloLens/tree/master/HoloStorageConnector)
+In each case, you will have to create a new pipeline module in `./core/pipelines/`. It
+should expose a `run` function (refer to existing pipelines for the signature) and be
+directly invokable for testing purposes (via `__main__`). You should then also add your
+pipeline to the `./core/pipelines.json` to document the pipeline's specification and
+make it visible for external clients. By adding it here, it will show up as an option
+for clients to run. The `job_controller` will then automatically load the new pipeline
+without any code changes.
 
-A Unity library handling the runtime network connections from HoloLens applications to the HoloStorage. Distributed as a separate UnityPackage, this is meant to facilitate development of 3rd party applications that plug into the HoloRepository ecosystem.
+In the pipeline itself, you should only a) call other components to perform actions and
+b) update the job status. Pipelines are pieced together from other components, which are
+really the core building blocks of the system. For the pre- and postprocessing steps, it
+is encouraged to reuse existing `tasks`, `services`, `adapters`, `wrappers` and
+`clients`. If your pipeline requires other functionality, try to extract it to a
+reusable components.
 
-### [HoloRepository demo application](https://github.com/nbckr/HoloRepository-HoloLens/tree/master/HoloRepositoryDemoApplication)
+If you encounter an error in your component, it's okay to just raise an Error or
+Exception. The `job_controller` which runs the pipelines will catch it and show an error
+message. The garbage collection will clean up after you.
 
-A simple application that demonstrates how to dynamically access 3D models stored in the HoloStorage. The scenes can be distributed alongside the Connector library and serve as examples and interactive documentation.
+If you want to integrate an existing implementation in python code or need to call an
+external program, write a wrapper.
 
-### [Other tools](https://github.com/nbckr/HoloRepository-Core/tree/master/Misc)
+If you want to integrate a pre-trained model, you should refer to `/models/README.md`
+and perform the steps described to wrap the model and integrate it into the system. You
+can then access it from your pipeline code.
 
-Several scripts and tools were developed to help perform tasks, for instance test data generation or deployment automation.
+Don't forget to update documentation, tests, and, if you add an additional external
+ model, the container deployments (refer to deployment documentation).
 
-### Integration with other projects
-
-The system is designed to enable other systems to integrate. Some current projects plugging into the system are DepthVisor, Annotator and SyntheticDataGenerator.
-
-## A word of warning
-
-> The system is currently not performing any input validation on the selected imaging
-> studies. There are some known issues that occur when the input images are not fit for
-> the selected pipelines. For instance, when a pelvis DICOM input is selected with the
-> `lung_segmentation` pipeline, it will fail. When this is invoked from the UI, the
-> error handling and messages may not be conclusive.
-
-To ensure good results and avoid unexpected system behaviour, you have to manually make
-sure that the image study you select depicts the correct body site for the selected
-pipeline. With the current set of pipelines and sample data, the appropriate inputs
-which are guaranteed to succeed are:
-
-* `bone_segmentation`
-  * all inputs (chest, abdomen, pelvis)
-* `lung_segmentation`
-  * chest
-* `abdominal_organs_segmentation`
-  * abdomen
-
-## Code organisation
-
-Most of the components are kept here in the [HoloRepository-Core](https://github.com/nbckr/HoloRepository-Core) mono-repository. The sub-directories correspond to sub-components as described above. The only exception are the components that are developed in Unity/C#, they are separately kept in the [HoloRepository-HoloLens](https://github.com/nbckr/HoloRepository-HoloLens) repository.
 
 ## Development
 
-### Get started
+### Requirements:
 
-To get started, you should clone both relevant git repositories:
+Python 3.7 or above
+
+### Dependencies and installation:
+
+Dependencies can be installed by using pip command as follow
+
+```
+pip install -r requirements.txt
+```
+
+Some dependencies are not available through pip, they are listed below with their
+installation instructions
+
+These 2 dependencies can be installed using Node.js package manager. Please make sure to
+have the latest version of npm installed.
+
+**obj2gltf** https://github.com/AnalyticalGraphicsInc/OBJ2GLTF
+
+```
+npm install -g obj2gltf
+```
+
+### Local development
+
+Just start the Flask server locally. It will automatically run in debug mode, including
+features like live reloading, extensive debug statements, etc.
+
 ```shell
-$ git clone git@github.com:nbckr/HoloRepository-Core.git
-$ git clone git@github.com:nbckr/HoloRepository-HoloLens.git
+python server.py
 ```
 
-Next, it is highly recommended to expolore the `README`s that are provided for each component.
+### Configuration
 
-### Set up the environment
+The application is configured through environment variables. For local development, the
+`.env` file will automatically be read and the variables will be made available (Note:
+`.env` file is included with test values in VCS in this case as it doesn't contain any
+secrets).
 
-The different components are developed in different languages and making use of different tools, so your next step should be inspecting the `README` in the respective directory.
+In production environments, all variables in `.env` should be set by the CD workflow.
 
-#### Pre-commit hooks
+## Testing
 
-As some languages, like Python, are used for multiple components, we use a common tool to enforce coherent coding style. The code formatter [black](https://github.com/psf/black) is checking new commits via a pre-commit hook. Steps to set it up:
+Testing is done using pytest:
 
-1. Install developer dependencies with `pipenv install --dev` or `pip install -r requirements-dev.txt` in the project root directory
-2. Setup pre-commit hooks with `pre-commit install`
-
-For the TypeScript portions, similar tooling is used. To set it up, follow the instructions in the respective sub-directories.
-
-#### CodeFactor
-
-CodeFactor is another tool we use to ensure high code quality. It will run automatically on GitHub for any activated branches, as well as for all pull requests. If the service finds any issues, please fix them before we will continue to consider the pull request.
-
-_Note: The `tslint.json` config is solely for this purpose. The actual JavaScript / TypeScript code is linted with ESLint, given that TSLint will be deprecated. Use the TSLint config only when CodeFactor's default rules are unreasonable._
-
-### System integration
-
-#### Ports and interfaces
-
-The different components are meant to be deployed independently. They communicate via REST APIs, which are documented in the sub-directories' `README`s. For development, the system can be run on the same host, using these default ports:
-```c
-HoloRepositoryUI/client:  3000
-HoloRepositoryUI/server:  3001
-HoloPipelines/core:       3100
-HoloStorageAccessor:      3200
-HoloPipelines/models:     5000, 5001, 5002, ...
+```
+pip install pytest pytest-mock pytest-cov
 ```
 
-#### Run system in docker-compose
+Execute tests by running the following command in `HoloPipelines` directory:
 
-As the system comprises multiple separate components, it can be helpful to use docker-compose to locally start all of them at once, for instance to perform integration tests or develop a new component.
+```
+pytest --cov
+```
 
-Note: To successfully start the Accessor, you need to provide the relevant configuration in `./HoloStorageAccessor/config.env` (see the sub-component's `README` for more information).
+### Manual testing with Postman
 
-This will also reflect the current state of the sub-components' `Dockerfile`s. To build and start all images (if they haven't been build already), run:
+The file `tests/HoloPipelines.postman_collection.json` contains a Postman collection
+ that can be used to try out the API endpoints manually. The typical workflow is to
+ trigger one of the pipelines by starting a new job (`POST /jobs`) and then tracking it
+ via the `/state` and `/log` endpoints.
+
+ Note that to test the end-to-end flow, the HoloStorageAccessor and any relevant neural
+ network containers should be running as well. You can use the `docker-compose` file in
+ the project root directory to help start the different sub-systems.
+
+ ## Build and deployment
+
+### Building and running the docker image
+
 ```shell
-$ docker-compose --file docker-compose.dev.yml up
-Starting holorepository-core_holorepository-ui-client_1                      ... done
-Starting holorepository-core_holopipelines-models__dense_vnet_abdominal_ct_1 ... done
-Starting holorepository-core_holorepository-ui-server_1                      ... done
-Creating holorepository-core_holostorage-accessor_1                          ... done
+docker build . -t holopipelines-core
+docker run --rm -p 3100:3100 --env-file .env holopipelines-core:latest
 ```
 
-Force a rebuild by replacing `docker-compose up` with `docker-compose build`.
+## API specification
 
-You can also just run a single component or a selection of components, but still use the provided configurations, port mappings etc. from the `docker-compose` file for convenience:
-```shell
-$ docker-compose --file docker-compose.dev.yml up holostorage-accessor holorepository-ui-server
+```
+POST /job
+    Starts a new job.
+
+GET /pipelines
+    Returns a JSON list of available pipelines
+
+GET /job/<job_id>/state
+    Returns the state of a job with specific ID
+
+GET /job/<job_id>/log
+    Returns the complete log of a job with specific ID
 ```
 
-Lastly, it is also possible to start the whole system except for one component, which will allow you to develop this component and, for instance, manually run it in dev mode.
-```shell
-$ docker-compose --file docker-compose.dev.yml up --scale holostorage-accessor=0
-```
+## Contact and support
 
-## Contributing
-
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change. For feature requests, please also open an issue.
-
-## Acknowledgements
-
-Built at [University College London](https://www.ucl.ac.uk/) in cooperation with [Microsoft](https://www.microsoft.com/en-gb) and [GOSH DRIVE](https://www.goshdrive.com/).
-
-Academic supervision: Prof. Dean Mohamedally, Prof. Neil Sebire
-
-Product logo is derived from a work by <a href="https://www.freepik.com/">Freepik</a> at <a href="https://www.flaticon.com/">www.flaticon.com</a>.
-
-## License
-
-[AGPLv3](https://choosealicense.com/licenses/agpl-3.0/)
+This component is owned by [nbckr](https://github.com/nbckr). The first prototype was
+developed by [UdomkarnBoonyaprasert](https://github.com/UdomkarnBoonyaprasert) and
+[ansonwong9695](https://github.com/ansonwong9695). Please get in touch if you have any
+questions. For change requests and bug reports, please open a new issue.
