@@ -93,7 +93,10 @@ def run(job_id: str, input_endpoint: str, medical_data: dict) -> None:
     logger.info(f"convert_obj_to_glb_and_write")
 
     update_job_state(job_id, JobState.DISPATCHING_OUTPUT.name, logger)
-    dispatch_output(job_id, this_plid, medical_data)
+    try:
+        dispatch_output(job_id, this_plid, medical_data)
+    except Exception as e:
+        logger.error(f"Error DISPATCHING OUTPUT: {e}")
 
     update_job_state(job_id, JobState.FINISHED.name, logger)
 
