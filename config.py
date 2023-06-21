@@ -34,11 +34,11 @@ GARBAGE_COLLECTION_INACTIVE_JOB_TTL_SECS = int(
 
 # Models
 NIFTYNET_MODEL_TIMEOUT = int(os.getenv("NIFTYNET_MODEL_TIMEOUT", 300))
-MODEL_ABDOMINAL_SEGMENTATION_HOST = "https://holopipe-model-test.azurewebsites.net"
+MODEL_ABDOMINAL_SEGMENTATION_HOST = "https://organsegmentation-model-app.azurewebsites.net"
 MODEL_ABDOMINAL_SEGMENTATION_PORT = int(os.getenv("MODEL_ABDOMINAL_SEGMENTATION_PORT", 5000))
 
 # Other service endpoints
-HOLOSTORAGE_ACCESSOR_HOST = "https://holostorage-accessor-test.azurewebsites.net"
+HOLOSTORAGE_ACCESSOR_HOST = "https://organsegmentation-storageaccessor-app.azurewebsites.net"
 HOLOSTORAGE_ACCESSOR_PORT = int(os.getenv("HOLOSTORAGE_ACCESSOR_PORT", 3200))
 
 bool_vars = [KEEP_ALL_FILES, KEEP_ALL_LOG_FILES]
