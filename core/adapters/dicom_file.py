@@ -10,7 +10,14 @@ import SimpleITK as sitk
 import numpy as np
 import pydicom
 import scipy.ndimage
-
+"""from jobs.jobs_io import (
+    get_logger_for_job,
+)
+Enables logging in for function in this file:
+Example:
+logger = get_logger_for_job(job_id)
+logger.info("info")
+"""
 
 def read_dicom_dataset(input_directory_path: str) -> List[pydicom.dataset.FileDataset]:
     """

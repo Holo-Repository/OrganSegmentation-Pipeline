@@ -37,6 +37,11 @@ def get_temp_file_path_for_job(job_id: str, file_name: str) -> str:
 
 
 def get_result_file_path_for_job(job_id: str) -> str:
+    directory_path = f"{jobs_root}/{job_id}/output"
+
+    if not os.path.exists(directory_path):
+        os.makedirs(directory_path)
+
     return f"{jobs_root}/{job_id}/output/out.glb"
 
 

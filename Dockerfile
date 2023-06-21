@@ -14,6 +14,7 @@ RUN cat /etc/os-release
 
 RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
 RUN apt-get install -y nodejs
+RUN apt-get install -y npm
 RUN npm install -g obj2gltf
 
 COPY core ./core

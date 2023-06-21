@@ -17,10 +17,9 @@ from jobs.jobs_io import get_result_file_path_for_job
 # Note: Could be refactored such that more data is kept in job-specific temp
 # directories and less stuff has to be handed from component to component.
 
-holostorage_baseurl = f"{HOLOSTORAGE_ACCESSOR_HOST}:{HOLOSTORAGE_ACCESSOR_PORT}"
+holostorage_baseurl = f"{HOLOSTORAGE_ACCESSOR_HOST}"
 api_version = "v1"
 holograms_endpoint = f"{holostorage_baseurl}/api/{api_version}/holograms"
-
 
 def send_file_request_to_accessor(job_id: str, plid: str, medical_data: dict) -> None:
     output_file_path = get_result_file_path_for_job(job_id)
