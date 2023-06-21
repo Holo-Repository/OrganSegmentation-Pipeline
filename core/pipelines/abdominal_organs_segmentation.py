@@ -89,7 +89,7 @@ def run(job_id: str, input_endpoint: str, medical_data: dict) -> None:
     write_mesh_as_obj(verts, faces, norm, obj_output_path)
     logger.info("write_mesh_as_obj.")
 
-    convert_obj_to_glb_and_write(obj_output_path, get_result_file_path_for_job(job_id),job_id)
+    convert_obj_to_glb_and_write(obj_output_path, get_result_file_path_for_job(job_id))
     logger.info(f"convert_obj_to_glb_and_write")
 
     update_job_state(job_id, JobState.DISPATCHING_OUTPUT.name, logger)
