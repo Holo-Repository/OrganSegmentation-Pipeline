@@ -8,14 +8,14 @@ that calls this API and thus integrates it with the pipelines.
 import requests
 
 from config import NIFTYNET_MODEL_TIMEOUT
-"""from jobs.jobs_io import (
+from jobs.jobs_io import (
     get_logger_for_job,
 )
-Enables logging in for function in this file:
-Example:
-logger = get_logger_for_job(job_id)
-logger.info("info")
-"""
+#Enables logging in for function in this file:
+#Example:
+#logger = get_logger_for_job(job_id)
+#logger.info("info")
+
 
 def call_model(
     model_host: str, model_port: int, input_file_path: str, output_file_path: str, job_id: str
