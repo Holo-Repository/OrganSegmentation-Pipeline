@@ -11,7 +11,7 @@ resources:
 variables:
   # Container registry service connection established during pipeline creation
   dockerRegistryServiceConnection: '9c5d8736-f7f6-42b5-ade5-1dd0e486f274'
-  imageRepository: 'organsegmentationpipelineoriginalver'
+  imageRepository: 'organsegmentationpipeline'
   containerRegistry: 'organsegmentationcr.azurecr.io'
   dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
   tag: '$(Build.BuildId)'
