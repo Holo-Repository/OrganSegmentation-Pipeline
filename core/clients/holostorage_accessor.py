@@ -42,9 +42,9 @@ def send_file_request_to_accessor(job_id: str, plid: str, medical_data: dict) ->
     response = requests.post(holograms_endpoint, data=request_body, files=files)
 
     if response.status_code == 200:
-        logger.info(f"Success! Created hologram: {response.json()}")
+        logger.info(f"Success! Created hologram: {response.text}")
     else:
-        raise Exception(f"Failed to created hologram: {response.json()}")
+        raise Exception(f"Failed to created hologram: {response.text}")
 
 
 def create_meta_data(file_size_in_kb: int, plid: str) -> dict:
