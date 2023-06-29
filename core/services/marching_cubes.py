@@ -23,4 +23,13 @@ def generate_mesh(
     verts, faces, norm, val = measure.marching_cubes_lewiner(
         volume, threshold, step_size=step_size, allow_degenerate=True
     )
-    return verts, faces, norm
+
+    aligned_verts = align_mesh_with_pivot(verts, [0.0, 0.0, 0.0]) 
+
+    return aligned_verts, faces, norm
+
+def align_mesh_with_pivot(verts: np.ndarray, pivot: Tuple[float, float, float]) -> np.ndarray:
+    center = np.mean(verts, axis=0)  # Calculate the center of the mesh
+    offset = np.array(pivot) - center  # Calculate the offset between the pivot and the center
+    aligned_verts = verts + offset  # Translate the vertices by the offset
+    return aligned_verts
