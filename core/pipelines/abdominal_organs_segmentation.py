@@ -87,14 +87,6 @@ def run(job_id: str, input_endpoint: str, medical_data: dict) -> None:
     verts, faces, norm = generate_mesh(segmented_array, hu_threshold)
     logger.info("generate_mesh.")
 
-    def align_mesh_with_pivot(verts: np.ndarray, pivot: Tuple[float, float, float]) -> np.ndarray:
-        center = np.mean(verts, axis=0)  # Calculate the center of the mesh
-        offset = np.array(pivot) - center  # Calculate the offset between the pivot and the center
-        aligned_verts = verts + offset  # Translate the vertices by the offset
-        return aligned_verts
-
-    aligned_verts = align_mesh_with_pivot(verts, [0.0, 0.0, 0.0]) 
-
     write_mesh_as_obj(verts, faces, norm, obj_output_path)
     logger.info("write_mesh_as_obj.")
 
