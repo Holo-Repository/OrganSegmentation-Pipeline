@@ -9,7 +9,6 @@ import sys
 import numpy as np
 
 from core.adapters.dicom_file import read_dicom_as_np_ndarray_and_normalise
-from core.adapters.glb_file import convert_obj_to_glb_and_write
 from core.adapters.obj_file import write_mesh_as_obj
 from core.services.marching_cubes import generate_mesh
 from core.services.np_image_manipulation import downscale_and_conditionally_crop
@@ -44,12 +43,12 @@ def run(job_id: str, input_endpoint: str, medical_data: dict) -> None:
     downscaled_image = downscale_and_conditionally_crop(dicom_image)
 
     update_job_state(job_id, JobState.PERFORMING_SEGMENTATION.name, logger)
-    obj_output_path = get_temp_file_path_for_job(job_id, "temp.obj")
     verts, faces, norm = generate_mesh(downscaled_image, bone_hu_threshold)
-    write_mesh_as_obj(verts, faces, norm, obj_output_path)
-
+    
+    logger.info("generate_mesh.")
     update_job_state(job_id, JobState.POSTPROCESSING.name, logger)
-    convert_obj_to_glb_and_write(obj_output_path, get_result_file_path_for_job(job_id))
+    write_mesh_as_obj(verts, faces, norm, get_result_file_path_for_job(job_id))
+    logger.info("write_mesh_as_obj.")
 
     update_job_state(job_id, JobState.DISPATCHING_OUTPUT.name, logger)
     dispatch_output(job_id, this_plid, medical_data)

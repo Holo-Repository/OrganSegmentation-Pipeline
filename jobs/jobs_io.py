@@ -42,7 +42,7 @@ def get_result_file_path_for_job(job_id: str) -> str:
     if not os.path.exists(directory_path):
         os.makedirs(directory_path)
 
-    return f"{jobs_root}/{job_id}/output/out.glb"
+    return f"{jobs_root}/{job_id}/output/out.obj"
 
 
 def get_input_directory_path_for_job(job_id: str) -> str:
