@@ -87,11 +87,11 @@ def run(job_id: str, input_endpoint: str, medical_data: dict) -> None:
     verts, faces, norm = generate_mesh(segmented_array, hu_threshold)
     logger.info("generate_mesh.")
 
-    write_mesh_as_obj(verts, faces, norm, obj_output_path)
+    write_mesh_as_obj(verts, faces, norm, get_result_file_path_for_job(job_id))
     logger.info("write_mesh_as_obj.")
 
-    convert_obj_to_glb_and_write(obj_output_path, get_result_file_path_for_job(job_id))
-    logger.info(f"convert_obj_to_glb_and_write")
+    #convert_obj_to_glb_and_write(obj_output_path, get_result_file_path_for_job(job_id))
+    #logger.info(f"convert_obj_to_glb_and_write")
 
     update_job_state(job_id, JobState.DISPATCHING_OUTPUT.name, logger)
     try:
