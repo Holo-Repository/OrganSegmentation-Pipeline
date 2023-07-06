@@ -10,6 +10,7 @@ Xinyang Feng, Jie Yang, Andrew F. Laine, Elsa D. Angelini
 import os
 
 from core.adapters.dicom_file import read_dicom_as_np_ndarray_and_normalise
+#from core.adapters.glb_file import convert_obj_to_glb_and_write
 from core.adapters.nifti_file import (
     convert_dicom_np_ndarray_to_nifti_image,
     read_nifti_as_np_array,
@@ -59,17 +60,13 @@ def run(job_id: str, input_endpoint: str, medical_data: dict) -> None:
         nifti_output_file_path, output_nifti_directory_path
     )
 
+    update_job_state(job_id, JobState.POSTPROCESSING.name, logger)
     nifti_image_as_np_array = read_nifti_as_np_array(
         generated_segmented_lung_nifti_path, normalise=False
     )
-
-    update_job_state(job_id, JobState.POSTPROCESSING.name, logger)
-
+    
     verts, faces, norm = generate_mesh(nifti_image_as_np_array, hu_threshold)
-    logger.info("generate_mesh.")
-
     write_mesh_as_obj(verts, faces, norm, get_result_file_path_for_job(job_id))
-    logger.info("write_mesh_as_obj.")
 
     update_job_state(job_id, JobState.DISPATCHING_OUTPUT.name, logger)
     dispatch_output(job_id, this_plid, medical_data)
