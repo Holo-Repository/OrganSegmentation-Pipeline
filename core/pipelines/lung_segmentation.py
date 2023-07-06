@@ -59,17 +59,13 @@ def run(job_id: str, input_endpoint: str, medical_data: dict) -> None:
         nifti_output_file_path, output_nifti_directory_path
     )
 
+    update_job_state(job_id, JobState.POSTPROCESSING.name, logger)
     nifti_image_as_np_array = read_nifti_as_np_array(
         generated_segmented_lung_nifti_path, normalise=False
     )
-
-    update_job_state(job_id, JobState.POSTPROCESSING.name, logger)
-
+    
     verts, faces, norm = generate_mesh(nifti_image_as_np_array, hu_threshold)
-    logger.info("generate_mesh.")
-
     write_mesh_as_obj(verts, faces, norm, get_result_file_path_for_job(job_id))
-    logger.info("write_mesh_as_obj.")
 
     update_job_state(job_id, JobState.DISPATCHING_OUTPUT.name, logger)
     dispatch_output(job_id, this_plid, medical_data)

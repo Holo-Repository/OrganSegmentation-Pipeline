@@ -44,17 +44,11 @@ def run(job_id: str, input_endpoint: str, medical_data: dict) -> None:
 
     update_job_state(job_id, JobState.PERFORMING_SEGMENTATION.name, logger)
     verts, faces, norm = generate_mesh(downscaled_image, bone_hu_threshold)
-    
-    logger.info("generate_mesh.")
-    update_job_state(job_id, JobState.POSTPROCESSING.name, logger)
     write_mesh_as_obj(verts, faces, norm, get_result_file_path_for_job(job_id))
-    logger.info("write_mesh_as_obj.")
+
+    update_job_state(job_id, JobState.POSTPROCESSING.name, logger)
 
     update_job_state(job_id, JobState.DISPATCHING_OUTPUT.name, logger)
     dispatch_output(job_id, this_plid, medical_data)
 
     update_job_state(job_id, JobState.FINISHED.name, logger)
-
-
-if __name__ == "__main__":
-    run(sys.argv[1], sys.argv[2], sys.argv[3])
