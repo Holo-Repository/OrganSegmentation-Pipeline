@@ -10,7 +10,6 @@ Xinyang Feng, Jie Yang, Andrew F. Laine, Elsa D. Angelini
 import os
 
 from core.adapters.dicom_file import read_dicom_as_np_ndarray_and_normalise
-#from core.adapters.glb_file import convert_obj_to_glb_and_write
 from core.adapters.nifti_file import (
     convert_dicom_np_ndarray_to_nifti_image,
     read_nifti_as_np_array,
