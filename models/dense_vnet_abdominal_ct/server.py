@@ -25,7 +25,7 @@ def file_format_is_allowed(filename):
 
 def format_output_filename(filename):
     filename_noextension = filename.split("_")[0]
-    return filename_noextension + "__niftynet_out.nii.gz"
+    return filename_noextension + "__monai_out.nii.gz"
 
 
 @app.route("/model", methods=["POST"])
