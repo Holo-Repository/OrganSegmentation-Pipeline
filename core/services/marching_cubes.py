@@ -25,9 +25,7 @@ def generate_mesh(
         volume, threshold, step_size=step_size, allow_degenerate=True
     )
 
-    aligned_verts = align_mesh_with_pivot(verts, [0.0, 0.0, 0.0]) 
-
-    return aligned_verts, faces, norm
+    return verts, faces, norm
 
 def seperate_segmentation(data: np.ndarray, unique_values: list = []) -> np.ndarray:
         """
@@ -42,9 +40,3 @@ def seperate_segmentation(data: np.ndarray, unique_values: list = []) -> np.ndar
             temp[temp != value] = 0
             result[i] = temp
         return result
-
-def align_mesh_with_pivot(verts: np.ndarray, pivot: Tuple[float, float, float]) -> np.ndarray:
-    center = np.mean(verts, axis=0)  # Calculate the center of the mesh
-    offset = np.array(pivot) - center  # Calculate the offset between the pivot and the center
-    aligned_verts = verts + offset  # Translate the vertices by the offset
-    return aligned_verts

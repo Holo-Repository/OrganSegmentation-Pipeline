@@ -9,11 +9,14 @@ WORKDIR ${APP_DIR}
 COPY requirements.txt ./
 RUN pip install gunicorn
 RUN pip install -r requirements.txt
+RUN pip install "monai[fire]"
+RUN pip install pytorch-ignite==0.4.9
 
 RUN cat /etc/os-release
 
 COPY core ./core
 COPY jobs ./jobs
+COPY models ./models
 COPY server.py ./
 COPY config.py ./
 

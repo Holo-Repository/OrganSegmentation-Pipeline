@@ -15,7 +15,6 @@ from core.adapters.nifti_file import (
     read_nifti_as_np_array,
     write_np_array_as_nifti_image,
 )
-from core.adapters.obj_file import write_mesh_as_obj
 from core.adapters.glb_file import write_mesh_as_glb_with_colour
 from core.services.marching_cubes import generate_mesh, seperate_segmentation
 from core.services.np_image_manipulation import downscale_and_conditionally_crop
@@ -66,7 +65,6 @@ def run(job_id: str, input_endpoint: str, medical_data: dict) -> None:
         generated_segmented_lung_nifti_path, normalise=False
     )
     
-    #verts, faces, norm = generate_mesh(nifti_image_as_np_array, hu_threshold)
     for segment in seperate_segmentation(segmented_array, unique_values=segment_type):
         try:
             mesh = generate_mesh(segment, 0)
@@ -74,7 +72,6 @@ def run(job_id: str, input_endpoint: str, medical_data: dict) -> None:
         except:
             pass
 
-    #write_mesh_as_obj(verts, faces, norm, get_result_file_path_for_job(job_id))
     write_mesh_as_glb_with_colour(meshes,get_result_file_path_for_job(job_id),30)
 
     update_job_state(job_id, JobState.DISPATCHING_OUTPUT.name, logger)

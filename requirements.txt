@@ -24,7 +24,6 @@ pydicom==1.2.2
 pyparsing==3.0.9
 python-dateutil==2.8.2
 python-dotenv==0.21.1
-#python-dotenv==0.10.3
 PyWavelets==1.1.1
 requests==2.20.1
 scikit-image==0.15.0

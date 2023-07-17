@@ -24,7 +24,7 @@ from core.adapters.nifti_file import (
 )
 
 from core.adapters.glb_file import write_mesh_as_glb_with_colour
-from core.clients import niftynet
+from models.dense_vnet_abdominal_ct.model import abdominal_model
 from core.services.marching_cubes import generate_mesh, seperate_segmentation
 from core.services.np_image_manipulation import downscale_and_conditionally_crop
 from core.tasks.shared.dispatch_output import dispatch_output
@@ -63,21 +63,12 @@ def run(job_id: str, input_endpoint: str, medical_data: dict) -> None:
 
     update_job_state(job_id, JobState.PREPROCESSING.name, logger)
     nifti_image = convert_dicom_np_ndarray_to_nifti_image(crop_dicom_image_array)
-    initial_nifti_output_file_path = get_temp_file_path_for_job(job_id, "temp.nii")
+    initial_nifti_output_file_path = "./models/dense_vnet_abdominal_ct/input/temp.nii"
     write_nifti_image(nifti_image, initial_nifti_output_file_path)
 
     update_job_state(job_id, JobState.PERFORMING_SEGMENTATION.name, logger)
-    segmented_nifti_output_file_path = get_temp_file_path_for_job(
-        job_id, "segmented.nii.gz"
-    )
 
-    niftynet.call_model(
-        MODEL_ABDOMINAL_SEGMENTATION_HOST,
-        MODEL_ABDOMINAL_SEGMENTATION_PORT,
-        initial_nifti_output_file_path,
-        segmented_nifti_output_file_path,
-        job_id,
-    )
+    segmented_nifti_output_file_path = abdominal_model.predict()
 
     update_job_state(job_id, JobState.POSTPROCESSING.name, logger)
     segmented_array = read_nifti_as_np_array(
