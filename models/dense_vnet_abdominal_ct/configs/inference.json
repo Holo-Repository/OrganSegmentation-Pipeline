@@ -1,6 +1,6 @@
 {
     "displayable_configs": {
-        "highres": true,
+        "highres": false,
         "sw_overlap": 0.25,
         "sw_batch_size": 1
     },
