@@ -22,9 +22,10 @@ from core.adapters.nifti_file import (
     read_nifti_as_np_array,
     write_nifti_image,
 )
-from core.adapters.obj_file import write_mesh_as_obj
+
+from core.adapters.glb_file import write_mesh_as_glb_with_colour
 from core.clients import niftynet
-from core.services.marching_cubes import generate_mesh
+from core.services.marching_cubes import generate_mesh, seperate_segmentation
 from core.services.np_image_manipulation import downscale_and_conditionally_crop
 from core.tasks.shared.dispatch_output import dispatch_output
 from core.tasks.shared.receive_input import fetch_and_unzip
@@ -38,6 +39,8 @@ from jobs.jobs_state import JobState, update_job_state
 
 this_plid = os.path.basename(__file__).replace(".py", "")
 hu_threshold = 0
+segment_type=[]
+meshes = []
 
 
 def run(job_id: str, input_endpoint: str, medical_data: dict) -> None:
@@ -64,6 +67,7 @@ def run(job_id: str, input_endpoint: str, medical_data: dict) -> None:
     write_nifti_image(nifti_image, initial_nifti_output_file_path)
 
     update_job_state(job_id, JobState.PERFORMING_SEGMENTATION.name, logger)
+
     segmented_nifti_output_file_path = get_temp_file_path_for_job(
         job_id, "segmented.nii.gz"
     )
@@ -81,11 +85,14 @@ def run(job_id: str, input_endpoint: str, medical_data: dict) -> None:
         segmented_nifti_output_file_path, normalise=False
     )
 
-    verts, faces, norm = generate_mesh(segmented_array, hu_threshold)
-    logger.info("generate_mesh.")
+    for segment in seperate_segmentation(segmented_array, unique_values=segment_type):
+        try:
+            mesh = generate_mesh(segment, 0)
+            meshes.append(mesh)
+        except:
+            pass
 
-    write_mesh_as_obj(verts, faces, norm, get_result_file_path_for_job(job_id))
-    logger.info("write_mesh_as_obj.")
+    write_mesh_as_glb_with_colour(meshes,get_result_file_path_for_job(job_id),30)
 
     update_job_state(job_id, JobState.DISPATCHING_OUTPUT.name, logger)
     try:

@@ -12,6 +12,7 @@ from skimage import measure
 def generate_mesh(
     image_data: np.ndarray, threshold=300, step_size=1
 ) -> Tuple[np.array, np.array, np.array]:
+    logging.info("Generating mesh")
     logging.info("Marching cubes: Transposing surface")
 
     # For NIfTI with 5D shape (time etc.); most NIfTI comes in 3D anyway
@@ -24,12 +25,18 @@ def generate_mesh(
         volume, threshold, step_size=step_size, allow_degenerate=True
     )
 
-    aligned_verts = align_mesh_with_pivot(verts, [0.0, 0.0, 0.0]) 
+    return verts, faces, norm
 
-    return aligned_verts, faces, norm
-
-def align_mesh_with_pivot(verts: np.ndarray, pivot: Tuple[float, float, float]) -> np.ndarray:
-    center = np.mean(verts, axis=0)  # Calculate the center of the mesh
-    offset = np.array(pivot) - center  # Calculate the offset between the pivot and the center
-    aligned_verts = verts + offset  # Translate the vertices by the offset
-    return aligned_verts
+def seperate_segmentation(data: np.ndarray, unique_values: list = []) -> np.ndarray:
+        """
+        Seperate unique values into a new dimension. If no unique values are
+        given, np.unique() will be used.
+        """
+        if not unique_values:
+            unique_values = np.unique(data)
+        result = np.zeros((len(unique_values),) + data.shape)
+        for i, value in enumerate(unique_values):
+            temp = np.array(data)
+            temp[temp != value] = 0
+            result[i] = temp
+        return result
