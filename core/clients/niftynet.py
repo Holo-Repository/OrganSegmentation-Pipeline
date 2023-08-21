@@ -25,7 +25,9 @@ def call_model(
     /model endpoint, as documented in the /models directory.
     """
     logger = get_logger_for_job(job_id)
-    model_endpoint = f"{model_host}/model"
+    # First is for deploy remotely, second is for local testing
+    model_endpoint = f"{model_host}/model"        
+    # model_endpoint = f"http://172.17.0.2:5000/model"
 
     with open(input_file_path, "rb") as input_fie:
         files = {"file": input_fie}

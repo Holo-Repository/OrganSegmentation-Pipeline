@@ -72,6 +72,7 @@ def run(job_id: str, input_endpoint: str, medical_data: dict) -> None:
         job_id, "segmented.nii.gz"
     )
 
+    # Call the Monai model
     niftynet.call_model(
         MODEL_ABDOMINAL_SEGMENTATION_HOST,
         MODEL_ABDOMINAL_SEGMENTATION_PORT,
@@ -84,7 +85,8 @@ def run(job_id: str, input_endpoint: str, medical_data: dict) -> None:
     segmented_array = read_nifti_as_np_array(
         segmented_nifti_output_file_path, normalise=False
     )
-
+    
+    # Updated using the method from HoloRepository 2020 View to generate mesh
     for segment in seperate_segmentation(segmented_array, unique_values=segment_type):
         try:
             mesh = generate_mesh(segment, 0)
@@ -92,7 +94,7 @@ def run(job_id: str, input_endpoint: str, medical_data: dict) -> None:
         except:
             pass
 
-    write_mesh_as_glb_with_colour(meshes,get_result_file_path_for_job(job_id),30)
+    write_mesh_as_glb_with_colour(meshes,get_result_file_path_for_job(job_id), 30)
 
     update_job_state(job_id, JobState.DISPATCHING_OUTPUT.name, logger)
     try:

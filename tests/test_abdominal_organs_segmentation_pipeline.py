@@ -17,11 +17,11 @@ from tests.utils.shared_fixtures import (
 test_job_id = os.path.basename(__file__).replace(".py", "")
 
 imagingStudyEndpoint = (
-    "https://holoblob.blob.core.windows.net/mock-pacs/normal-abdomen.zip"
+    "https://organsegmentationsa.blob.core.windows.net/scans/DICOM_anon.zip"
 )
 
 
-def create_mock_niftynet_output(_1: Any, _2: Any, _3: Any, _4: Any) -> None:
+def create_mock_niftynet_output(_1: Any, _2: Any, _3: Any, _4: Any, _5: Any) -> None:
     """
     Copies a minimal sample Nifti dataset (from https://nifti.nimh.nih.gov/nifti-1/data)
     to the location where Niftynet would place its output in a regular run.

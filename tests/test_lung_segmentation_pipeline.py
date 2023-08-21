@@ -14,7 +14,7 @@ from tests.utils.shared_fixtures import (
 test_job_id = os.path.basename(__file__).replace(".py", "")
 
 imagingStudyEndpoint = (
-    "https://holoblob.blob.core.windows.net/mock-pacs/normal-chest-mediastinal.zip"
+    "https://organsegmentationsa.blob.core.windows.net/scans/lung_bone_dicom.zip"
 )
 
 

@@ -1,4 +1,14 @@
-# HoloPipelines <a href="https://dev.azure.com/MSGOSHHOLO/HoloRepository/_build/latest?definitionId=1&branchName=dev"><img src="https://dev.azure.com/MSGOSHHOLO/HoloRepository/_apis/build/status/HoloRepository-Core?branchName=dev&jobName=HoloPipelines%20-%20Core" alt="HoloPipelines core build status" align="right" /></a>
+# HoloPipelines 2023<a href="https://dev.azure.com/Holo-Repository/OrganSegmentation/_build/results?buildId=70&view=results"><img src="https://dev.azure.com/MSGOSHHOLO/HoloRepository/_apis/build/status/HoloRepository-Core?branchName=dev&jobName=HoloPipelines%20-%20Core" alt="HoloPipelines core build status" align="right" /></a>
+
+This is an update of the 2019 version of HoloPipelines. The main changes are:
+
+-  The mesh generation method has been upgraded to use the method from [HoloRepository 2020](https://github.com/AppertaFoundation/HoloRepository-2020/tree/master/HoloRepository2020Viewer)'s HoloPipelines  
+-  The write to glTF file method has been upgraded to also use the methods from HoloRepository 2020's [glb file writer](https://github.com/AppertaFoundation/HoloRepository-2020/blob/master/HoloRepository2020Viewer/core/adapters/glb_file.py), with some minor changes to fix the model's pivot issue when displayed in Unity
+- The abdominal pipeline has been updated to use [MONAI model](https://monai.io/model-zoo.html), and the nifitynet.py file is updated to reflex the update
+
+Below are the readme from teh 2019 version of HoloPipelines
+
+# HoloPipelines 2019
 
 A cloud-based service that performs the automatic generation of 3D models from 2D image
 stacks. Pre-trained neural network models are deployed and accessed with this component

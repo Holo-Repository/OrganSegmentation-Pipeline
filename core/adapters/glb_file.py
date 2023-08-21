@@ -5,12 +5,12 @@ import logging
 import numpy as np
 import trimesh
 from trimesh import repair
+import trimesh.creation
 from trimesh.smoothing import filter_laplacian,filter_taubin
 
 def write_mesh_as_glb_with_colour(
-    meshes, output_obj_file_path: str, iterations, colour=[], metadata={}
+    meshes, output_glb_file_path: str, iterations, colour=[], metadata={}
 ) -> None:
-    print("Writing mesh to GLB file. Saving here: {}".format(output_obj_file_path))
     scene = trimesh.Scene(metadata=metadata)
     index = 0
     if len(colour) != len(meshes):
@@ -34,8 +34,7 @@ def write_mesh_as_glb_with_colour(
     for mesh in scene.geometry.items():
         mesh[1].vertices -= center
 
-    scene.export(output_obj_file_path)
-
+    scene.export(output_glb_file_path)
 
 def get_random_rgb_colours(length, alpha=0.5):
     colour = np.random.rand(length, 3)
