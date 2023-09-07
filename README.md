@@ -4,52 +4,9 @@ This is an update of the 2019 version of HoloPipelines. The main changes are:
 
 -  The mesh generation method has been upgraded to use the method from [HoloRepository 2020](https://github.com/AppertaFoundation/HoloRepository-2020/tree/master/HoloRepository2020Viewer)'s HoloPipelines  
 -  The write to glTF file method has been upgraded to also use the methods from HoloRepository 2020's [glb file writer](https://github.com/AppertaFoundation/HoloRepository-2020/blob/master/HoloRepository2020Viewer/core/adapters/glb_file.py), with some minor changes to fix the model's pivot issue when displayed in Unity
-- The abdominal pipeline has been updated to use [MONAI model](https://monai.io/model-zoo.html), and the nifitynet.py file is updated to reflex the update
+- The abdominal pipeline has been updated to use [MONAI model](https://monai.io/model-zoo.html), and the nifitynet.py file is updated to reflect the update
 
-Below are the readme from teh 2019 version of HoloPipelines
-
-# HoloPipelines 2019
-
-A cloud-based service that performs the automatic generation of 3D models from 2D image
-stacks. Pre-trained neural network models are deployed and accessed with this component
-alongside traditional techniques like Hounsfield value thresholding.
-
-## Description
-
-<img
-src="https://user-images.githubusercontent.com/11090412/62010807-49d5b180-b167-11e9-9ff5-cd221e94b265.png"
-alt="screenshot" height="350" align="left" /> The HoloPipelines are responsible for the
-generation of 3D holograms to eventually be displayed in the HoloLens, sourced from
-DICOM imaging studies. The cloud-hosted service provides a consistent pipeline interface
-to consume DICOM and yield glTF2 files (plus associated patient data). By implementing a
-Docker-based template, arbitrary pre-trained neural network (NN) models can be plugged
-into the HoloPipelines service seamlessly. This allows to add new workflows in the
-future and implement each workflow independently.
-
-A typical pipeline will process the data fully automatic by utilising a NN model which
-has been trained to perform a specific task, such as segmenting the bones from a CT
-scan. Several Docker-based interfaces for distributing pre-trained models have been
-suggested, for instance the ModelHub.ai scheme, Niftinet or Microsoft Azure ML. We will
-iteratively add adapters for these interfaces, so that the HoloPipelines can integrate
-existing models.
-
-As each pipeline is independent, semi-automated or manual pipelines (which may even
-include their own front-ends or manual processing steps) could be added later.
-
-Upon receiving a DICOM image series, a job will be started and passed through the
-different stages of a pipeline. The status of each job can be queried through a distinct
-API. When finished, the result will be handed on to the HoloStorage Accessor.
-
-## Technologies
-
-Majority of the code is written in Python 3.7.3
-
-- Web application framework to handle requests [Flask](https://github.com/pallets/flask)
-- [Node.js](https://nodejs.org/en/) to utilise the package available for glTF conversion
-  and transformation
-- An open source convolutional neural networks platform [NiftyNet](https://niftynet.io)
-- Pipelines containerized using [Docker](https://www.docker.com)
-- Testing is done through [Pytest](https://github.com/pytest-dev/pytest)
+Below is the readme from the 2019 version of HoloPipelines
 
 ## Architecture
 
@@ -80,17 +37,6 @@ files, but keeps logs around by default. For production deployment, this should 
 changed (or the `__finished_jobs__` directory should be emptied regularly). If you want
 to keep all files or change other settings, refer to the
 [configuration](#configuration).
-
-## Pre-trained NN models
-
-We are continually wrapping existing pre-trained models with a lightweight Flask API and
-a `Dockerfile`. These models can be found in the `models/` directory.
-
-If you want to train your own model or integrate an existing model that is not
-officially supported yet, you can easily integrate it yourself. You will need to
-implement some kind of server to comply with the specified API endpoints (documented in
-`models/README.md`) and a `Dockerfile`. You can take a look at the existing models for
-reference.
 
 ## How to add new pipelines
 
@@ -125,13 +71,6 @@ message. The garbage collection will clean up after you.
 
 If you want to integrate an existing implementation in python code or need to call an
 external program, write a wrapper.
-
-If you want to integrate a pre-trained model, you should refer to `/models/README.md`
-and perform the steps described to wrap the model and integrate it into the system. You
-can then access it from your pipeline code.
-
-Don't forget to update documentation, tests, and, if you add an additional external
- model, the container deployments (refer to deployment documentation).
 
 
 ## Development
@@ -227,10 +166,3 @@ GET /job/<job_id>/state
 GET /job/<job_id>/log
     Returns the complete log of a job with specific ID
 ```
-
-## Contact and support
-
-This component is owned by [nbckr](https://github.com/nbckr). The first prototype was
-developed by [UdomkarnBoonyaprasert](https://github.com/UdomkarnBoonyaprasert) and
-[ansonwong9695](https://github.com/ansonwong9695). Please get in touch if you have any
-questions. For change requests and bug reports, please open a new issue.
